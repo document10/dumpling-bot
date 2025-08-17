@@ -60,6 +60,9 @@ export async function execute(interaction: CommandInteraction) {
         inline: true,
       },
     )
+    .setThumbnail(
+      `https://singlecolorimage.com/get/${parsedColor.hex().slice(1)}/400x400`,
+    )
     .setTimestamp();
 
   return interaction.reply({ embeds: [embed] });

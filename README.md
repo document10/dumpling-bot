@@ -15,6 +15,8 @@ Discord bot implemented using the [Bun runtime](https://bun.com/) and [Discord J
 [Make sure Bun is installed and at its latest version.](https://bun.com/docs/installation)
 
 ```bash
+git clone https://github.com/document10/dumpling-bot
+cd dumpling-bot
 bun install
 ```
 

@@ -2,6 +2,7 @@ import {
   CommandInteraction,
   EmbedBuilder,
   SlashCommandBuilder,
+  User,
 } from "discord.js";
 
 export const data = new SlashCommandBuilder()
@@ -16,15 +17,17 @@ export const data = new SlashCommandBuilder()
 export const category = "info";
 
 export async function execute(interaction: CommandInteraction) {
-  const user = interaction.options.getUser("target") || interaction.user;
-
+  const user: User = interaction.options.getUser("target") || interaction.user;
   const embed = new EmbedBuilder()
     .setTitle(`${user.username}'s Info`)
     .addFields(
       { name: "ID", value: user.id, inline: true },
       { name: "Username", value: user.username, inline: true },
-      { name: "Avatar", value: user.displayAvatarURL() },
-      { name: "Created At", value: user.createdAt.toDateString() },
+      {
+        name: "Created At",
+        value: user.createdAt.toDateString(),
+        inline: true,
+      },
       { name: "Bot", value: user.bot ? "Yes" : "No", inline: true },
     )
     .setThumbnail(user.displayAvatarURL())

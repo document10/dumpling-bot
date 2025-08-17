@@ -32,8 +32,10 @@ export async function execute(interaction: CommandInteraction) {
         name: "Hosting information",
         value:
           `Platform: ${globalThis.process.platform} ${os.release()} ${globalThis.process.arch}\nBun version: ${Bun.version}\nCPUs: ${os.cpus().length}\nMemory : ${
-            Math.round(os.totalmem() / 1024 / 1024 / 1024)
-          } GB`,
+            Math.round(os.freemem() / 1024 / 1024 / 1024)
+          } /${Math.round(os.totalmem() / 1024 / 1024 / 1024)} GB (${
+            Math.round((os.freemem() / os.totalmem()) * 100)
+          }%)`,
       },
     );
   return interaction.reply({ embeds: [embed] });

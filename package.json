@@ -2,20 +2,51 @@
   "name": "dumpling-bot",
   "module": "index.ts",
   "type": "module",
+  "version": "0.1.1",
+  "description": "A Discord bot for fun and utility commands written in Bun.",
+  "author": "document10",
+  "homepage": "https://github.com/document10/dumpling-bot",
+  "keywords": [
+    "discord",
+    "discordjs",
+    "discord-api",
+    "bot",
+    "javascript",
+    "typescript",
+    "js",
+    "ts",
+    "moderation",
+    "fun",
+    "utility",
+    "commands",
+    "slash-commands",
+    "search",
+    "bun",
+    "bunjs"
+  ],
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/document10/dumpling-bot.git"
+  },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/ms": "^2.1.0"
+    "@types/ms": "^2.1.0",
+    "jimp": "^1.6.0",
+    "jsqr": "^1.4.0"
   },
   "peerDependencies": {
     "typescript": "^5.9.2"
   },
   "dependencies": {
     "@prisma/client": "^6.14.0",
+    "@types/qrcode": "^1.5.5",
     "color": "^5.0.0",
     "discord.js": "^14.21.0",
     "ms": "^2.1.3",
-    "prisma": "^6.14.0"
+    "prisma": "^6.14.0",
+    "qrcode": "^1.5.4"
   },
   "scripts": {
     "start": "bun src/index.ts",
@@ -26,6 +57,7 @@
     "prisma-client": "bunx prisma generate",
     "prisma-secrets": "bun src/db-utils-prisma.ts update",
     "sql-setup": "bun src/db-utils-raw.ts setup",
-    "sql-secrets": "bun src/db-utils-raw.ts update"
+    "sql-secrets": "bun src/db-utils-raw.ts update",
+    "format": "deno fmt --ignore=README.md"
   }
 }

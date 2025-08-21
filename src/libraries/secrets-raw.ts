@@ -1,5 +1,3 @@
-// import { PrismaClient } from "../../prisma/generated/client";
-
 import { sql } from "bun";
 
 export async function getSecret(name: string): Promise<string> {

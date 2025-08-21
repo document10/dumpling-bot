@@ -1,5 +1,6 @@
 // import { PrismaClient } from "../prisma/generated/client";
 import { sql } from "bun";
+import { getSecret } from "./libraries/secrets-raw";
 if (!Bun.env.DATABASE_URL) {
   console.error("Error: DATABASE_URL environment variable is not set.");
   process.exit(1);
@@ -29,6 +30,10 @@ try {
     case "update":
       console.log(`Started updating secrets...`);
       break;
+    case "export":
+      console.log(`Started exporting secrets...`);
+      Bun.write("old.env", (await Promise.all(recognisedEnvVars.map(async varName => `${varName}=${await getSecret(varName)}`))).join("\n"));
+      process.exit(0);
     default:
       console.error(`Unknown command: ${Bun.argv[2]}`);
       process.exit(1);

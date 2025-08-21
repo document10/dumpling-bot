@@ -1,46 +1,38 @@
-// This file is purely for testing, ignore it for now
+// This file is just for random testing, ignore for now
 
-// import { sql } from "bun";
+import { getSecret} from "./src/libraries/secrets-raw";
 
-// const secrets = await sql`SELECT "value" FROM "Secret"`
-// secrets.sort((a, b) => a.id - b.id)
-// secrets.forEach(secret => {
-//   console.log(secret)
-// })
+Bun.write("new.env", `DATABASE_URL="${Bun.env.DATABASE_URL}"\nDISCORD_TOKEN="${getSecret("DISCORD_TOKEN")}"\nPUBLIC_KEY="${getSecret("PUBLIC_KEY")}"\nDISCORD_GUILDID="${getSecret("DISCORD_GUILDID")}"\nDISCORD_OWNERID="${getSecret("DISCORD_OWNERID")}"\nPASTEBIN_KEY="${getSecret("PASTEBIN_KEY")}"`);
 
-import { getSecret as getSecretRaw } from "./src/libraries/secrets-raw";
-import { getSecret as getSecretPrisma } from "./src/libraries/secrets-prisma";
+// const linguist = require("@sourcebin/linguist");
+// const query = "txt";
+// const res = Object.keys(linguist.linguist).find((v, i) =>
+//   linguist.linguist[v].name.toLowerCase() == query.toLowerCase() ||
+//   linguist.linguist[v].aliases?.map((a) => a.toLowerCase())?.includes(
+//     query.toLowerCase(),
+//   ) || linguist.linguist[v].extension?.toLowerCase() == query.toLowerCase()
+// );
+// console.log(linguist.linguist[res || 0]);
+// console.log(res);
+// const data = {
+//   title: "Test",
+//   description: "This is a test bin",
+//   files: [{
+//     languageId: res,
+//     name: "file1.py",
+//     content: 'print("Hello World")',
+//   }],
+// };
 
-const recognisedEnvVars = [
-  "DISCORD_CLIENTID",
-  "DISCORD_TOKEN",
-  "PUBLIC_KEY",
-  "DISCORD_GUILDID",
-  "DISCORD_OWNERID",
-  "PASTEBIN_KEY",
-  "THEME_COLOR", // Added for theme color
-];
+// const response = await fetch("https://sourceb.in/api/bins", {
+//   method: "POST",
+//   body: JSON.stringify(data),
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
 
-let start = Bun.nanoseconds();
-console.log(`Started fetching secrets from Raw at ${start}`);
-for (const envVar of recognisedEnvVars) {
-  await getSecretRaw(envVar);
-  console.log(`Fetched ${envVar} from Raw (${Bun.nanoseconds()})`);
-}
-start = Bun.nanoseconds() - start;
-console.log("Finished in ", start);
+// const content = await response.json();
 
-let start2 = Bun.nanoseconds();
-console.log(`Started fetching secrets from Prisma at ${start2}`);
-for (const envVar of recognisedEnvVars) {
-  await getSecretPrisma(envVar);
-  console.log(`Fetched ${envVar} from Prisma (${Bun.nanoseconds()})`);
-}
-start2 = Bun.nanoseconds() - start2;
-console.log("Finished in ", start2);
-
-console.log(
-  `${start < start2 ? "Raw" : "Prisma"} is faster by ${
-    Math.abs(start - start2)
-  } nanoseconds (${(start2 / start * 100).toFixed(2)}%)`,
-);
+// console.log(content);
+// console.log(`https://sourceb.in/${content.key}`);

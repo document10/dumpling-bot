@@ -3,7 +3,6 @@ import {
   CommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import { Readable } from "node:stream";
 import { buffer } from "node:stream/consumers";
 
 export const data = new SlashCommandBuilder()

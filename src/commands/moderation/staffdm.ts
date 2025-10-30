@@ -1,3 +1,4 @@
+import { sql } from "bun";
 import {
   Client,
   CommandInteraction,
@@ -23,8 +24,21 @@ export const data = new SlashCommandBuilder()
   );
 export const category = "moderation";
 export async function execute(interaction: CommandInteraction) {
+  const [staffrole] =
+    await sql`SELECT "staffRole" FROM "Server" WHERE "serverId" = ${interaction.guild?.id}`;
+  if (staffrole.staffRole === "-1") {
+    interaction.channel?.send({
+      content:
+        "WARNING: This server has no staff role set up. Only the server owner and administrators can use moderation commands. Please run `/staffrole @role` to set up a staff role.",
+      flags: 64,
+    });
+  }
   if (
-    !interaction.member.permissions.has(PermissionsBitField.Flags.ManageGuild)
+    !interaction.member?.roles.cache.has(staffrole.staffRole) &&
+    !interaction.member?.permissions.has(
+      PermissionsBitField.Flags.Administrator,
+    ) &&
+    interaction.member?.id !== interaction.guild?.ownerId
   ) {
     return interaction.reply({
       content: "You can't run this command.",
@@ -34,8 +48,8 @@ export async function execute(interaction: CommandInteraction) {
   const user = interaction.options.getUser("user", true);
   const content = interaction.options.getString("content", true);
   const embed = new EmbedBuilder()
-    .setTitle(`Message from ${interaction.guild.name} staff team`)
-    .setThumbnail(interaction.guild.iconURL())
+    .setTitle(`Message from ${interaction.guild?.name} staff team`)
+    .setThumbnail(interaction.guild?.iconURL())
     .setDescription(content)
     .setFooter({
       text: `You received this message as a notice from the server staff team.`,

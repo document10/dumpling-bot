@@ -22,9 +22,11 @@ export const category = "utility";
 
 export async function execute(interaction: CommandInteraction) {
   const embed = new EmbedBuilder()
-    .setColor(process.env.THEME_COLOR || "#a059ff")
+    .setColor(process.env?.THEME_COLOR || "#a059ff")
     .setTitle("About this bot")
-    .setDescription("This bot is built with [Bun](https://bun.sh/) and [Discord.js](https://discord.js.org/)")
+    .setDescription(
+      "This bot is built with [Bun](https://bun.sh/) and [Discord.js](https://discord.js.org/)",
+    )
     .addFields(
       {
         name: "Author",

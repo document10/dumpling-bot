@@ -1,5 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { getSecret } from "../../libraries/secrets-raw";
+import { getSecret } from "../../libraries/secrets";
 export const data = new SlashCommandBuilder()
   .setName("shutdown")
   .setDescription("Shuts down the bot. Only available to administrators.");
@@ -8,6 +8,13 @@ export const category = "owner";
 
 export async function execute(interaction: CommandInteraction) {
   const ownerId = await getSecret("DISCORD_OWNERID");
+  if (!ownerId) {
+    return interaction.reply({
+      content:
+        "**Error: Missing required environment variable DISCORD_OWNERID.**",
+      flags: 64,
+    });
+  }
   if (interaction.user.id !== ownerId) {
     return interaction.reply({
       content: "**You do not have permission to use this command.**",

@@ -1,6 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-
-import { getSecret } from "../../libraries/secrets-raw";
+import { getSecret } from "../../libraries/secrets";
 
 export const data = new SlashCommandBuilder()
   .setName("pastebin")

@@ -21,7 +21,10 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .env.test.local
 .env.production.local
 .env.local
-old.env
+
+# Database backups
+backups/old.env
+backups/servers.json
 
 # caches
 .eslintcache
@@ -40,3 +43,7 @@ old.env
 
 # Prisma generated files
 prisma/generated
+
+# Testing files
+
+testing

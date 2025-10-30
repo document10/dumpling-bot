@@ -1,3 +1,4 @@
+import { sql } from "bun";
 import {
   Client,
   CommandInteraction,
@@ -21,26 +22,31 @@ export const category = "moderation";
 export async function execute(interaction: CommandInteraction) {
   const user = interaction.options.getUser("user", false) ||
     interaction.member;
-  const member = await interaction.guild.members.fetch(user.id);
-  const prevnick = member.nickname;
+  const member = await interaction.guild?.members.fetch(user.id);
+  const prevnick = member?.nickname;
   const nick = interaction.options.getString("nickname", false);
-  const guildbot = await interaction.guild.members.fetch(
+  const guildbot = await interaction.guild?.members.fetch(
     interaction.client.user.id,
   );
-  if (!member.permissions.has(PermissionsBitField.Flags.ManageNicknames)) {
-    return interaction.reply({
-      content: "You can't run this command.",
-      ephemeral: true,
+  const [staffrole] =
+    await sql`SELECT "staffRole" FROM "Server" WHERE "serverId" = ${interaction.guild?.id}`;
+  if (staffrole.staffRole === "-1") {
+    interaction.channel?.send({
+      content:
+        "WARNING: This server has no staff role set up. Only the server owner and administrators can use moderation commands. Please run `/staffrole @role` to set up a staff role.",
+      flags: 64,
     });
   }
   if (
-    guildbot.roles.highest.rawPosition <= member.roles.highest.rawPosition ||
-    interaction.member.roles.highest.rawPosition <=
-      member.roles.highest.rawPosition
+    !interaction.member?.roles.cache.has(staffrole.staffRole) &&
+    !interaction.member?.permissions.has(
+      PermissionsBitField.Flags.Administrator,
+    ) &&
+    interaction.member?.id !== interaction.guild?.ownerId
   ) {
     return interaction.reply({
-      content: "Can't perform this action because of the role herarchy.",
-      ephemeral: true,
+      content: "You can't run this command.",
+      flags: 64,
     });
   }
   const embed = new EmbedBuilder()
@@ -65,7 +71,7 @@ export async function execute(interaction: CommandInteraction) {
       },
     );
   try {
-    await member.setNickname(nick, `run by ${interaction.user.username}`);
+    await member?.setNickname(nick, `run by ${interaction.user.username}`);
     return interaction.reply({ embeds: [embed] });
   } catch (error) {
     return interaction.reply(`Couldn't change nickname:\n\`${error}\``);

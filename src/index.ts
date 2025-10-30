@@ -1,16 +1,21 @@
-// import discord.js
 import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
 import path from "node:path";
 import fs from "node:fs";
-import { getSecret } from "./libraries/secrets-raw";
-// create a new Client instance
+import { getSecret } from "./libraries/secrets";
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const token = await getSecret("DISCORD_TOKEN");
+
+if (!token) {
+  console.error(
+    "Error: DISCORD_TOKEN environment variable is not set or invalid.",
+  );
+  process.exit(1);
+}
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
-
+console.log("Starting to load commands...");
 for (const folder of commandFolders) {
   console.log(`Loading commands from category: ${folder}`);
   const commandsPath = path.join(foldersPath, folder);
@@ -30,7 +35,7 @@ for (const folder of commandFolders) {
     }
   }
 }
-
+console.log("Starting to load events...");
 const eventsPath = path.join(__dirname, "events");
 const eventFiles = fs.readdirSync(eventsPath).filter((file) =>
   file.endsWith(".ts")
@@ -58,5 +63,6 @@ for (const file of eventFiles) {
     );
   }
 }
-// login with the token from .env.local
+
+console.log("Logging in...");
 client.login(token);

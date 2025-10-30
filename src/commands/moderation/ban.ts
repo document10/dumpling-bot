@@ -7,6 +7,8 @@ import {
   SlashCommandStringOption,
 } from "discord.js";
 
+import { sql } from "bun";
+
 export const data = new SlashCommandBuilder()
   .setName("ban")
   .setDescription("Bans a member from the server.")
@@ -19,13 +21,28 @@ export const data = new SlashCommandBuilder()
   );
 
 export const category = "moderation";
-export async function execute(interaction) {
+export async function execute(interaction: CommandInteraction) {
   const member = interaction.options.getMember("target");
   const reason = interaction.options.getString("reason") || "None specified";
-  const guildbot = await interaction.guild.members.fetch(
+  const guildbot = await interaction.guild?.members.fetch(
     interaction.client.user.id,
   );
-  if (!interaction.member.permissions.has("BanMembers")) {
+  const [staffrole] =
+    await sql`SELECT "staffRole" FROM "Server" WHERE "serverId" = ${interaction.guild?.id}`;
+  if (staffrole.staffRole === "-1") {
+    interaction.channel?.send({
+      content:
+        "WARNING: This server has no staff role set up. Only the server owner and administrators can use moderation commands. Please run `/staffrole @role` to set up a staff role.",
+      flags: 64,
+    });
+  }
+  if (
+    !interaction.member?.roles.cache.has(staffrole.staffRole) &&
+    !interaction.member?.permissions.has(
+      PermissionsBitField.Flags.Administrator,
+    ) &&
+    interaction.member?.id !== interaction.guild?.ownerId
+  ) {
     return interaction.reply({
       content: "You can't run this command.",
       flags: 64,
@@ -37,21 +54,10 @@ export async function execute(interaction) {
       flags: 64,
     });
   }
-  if (member.user.id == interaction.guild.ownerId) {
+  if (member.user.id == interaction.guild?.ownerId) {
     return interaction.reply({
       content: "Can't perform this action on the server owner.",
       flags: 64,
-    });
-  }
-  if (
-    guildbot.roles.highest.rawPosition <=
-      member.roles.highest.rawPosition ||
-    interaction.member.roles.highest.rawPosition <=
-      member.roles.highest.rawPosition
-  ) {
-    return interaction.reply({
-      content: "Can't perform this action because of the role herarchy.",
-      ephemeral: true,
     });
   }
   var serverEmbed = new EmbedBuilder()
@@ -59,7 +65,6 @@ export async function execute(interaction) {
       name: interaction.user.username,
       iconURL: interaction.user.displayAvatarURL({
         size: 512,
-        dynamic: true,
       }),
     })
     .setTitle(`${member.user.username} succesfully banned`)
@@ -73,17 +78,26 @@ export async function execute(interaction) {
     .setThumbnail(member.displayAvatarURL({ size: 512, dynamic: true }))
     .setTimestamp();
   const dmEmbed = new EmbedBuilder()
-    .setTitle(`You have been banned from ${interaction.guild.name}`)
+    .setTitle(`You have been banned from ${interaction.guild?.name}`)
     .setDescription(`Reason: ${reason}`)
     .setColor("#ff0000")
     .setTimestamp()
     .setFooter({
       text:
         `You may rejoin the server if you get unbanned and have the invite link.`,
-      iconURL: interaction.guild.iconURL({ size: 512, dynamic: true }),
+      iconURL: interaction.guild?.iconURL({ size: 512 }) ||
+        interaction.client.user.displayAvatarURL({ size: 512 }),
     });
   try {
     await member.send({ embeds: [dmEmbed] });
+  } catch (error) {
+    interaction.channel?.send({
+      content:
+        "INFO: I was unable to send a DM to the member. They might have DMs disabled.",
+      flags: 64,
+    });
+  }
+  try {
     await member.ban({
       reason: `${reason},run by ${interaction.user.username}`,
     });

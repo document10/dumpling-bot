@@ -5,6 +5,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { buffer } from "node:stream/consumers";
+import { getSecret } from "../../libraries/secrets";
 
 export const data = new SlashCommandBuilder()
   .setName("fetch")
@@ -15,12 +16,26 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
-export const category = "utility";
+export const category = "owner";
 
 export const execute = async (interaction: CommandInteraction) => {
   const url = interaction.options.getString("url");
-  await interaction.reply(`Fetching data from ${url}...`);
+  const ownerId = await getSecret("DISCORD_OWNERID");
+  if (!ownerId) {
+    return interaction.reply({
+      content:
+        "**Error: Missing required environment variable DISCORD_OWNERID.**",
+      flags: 64,
+    });
+  }
 
+  if (interaction.user.id !== ownerId) {
+    return interaction.reply({
+      content: "**You do not have permission to use this command.**",
+      flags: 64,
+    });
+  }
+  await interaction.reply(`Fetching data from ${url}...`);
   try {
     const response = await fetch(url);
     if (

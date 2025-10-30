@@ -1,69 +1,61 @@
 import {
+  CachedManager,
   Client,
   CommandInteraction,
   EmbedBuilder,
   SlashCommandBuilder,
+  type CacheFactory,
+  type CacheTypeReducer,
 } from "discord.js";
 
-import color from "color";
+import { Color } from "../../libraries/color";
 export const data = new SlashCommandBuilder()
   .setName("color")
   .setDescription("Get a color by name or hex code")
   .addStringOption((option) =>
-    option.setName("input").setDescription("The color in hex or rgb format")
-      .setRequired(true)
+    option
+      .setName("input")
+      .setDescription("The hex code of the color")
+      .setRequired(true),
   );
 
 export const category = "search";
 
 export async function execute(interaction: CommandInteraction) {
   const colorInput = interaction.options.getString("input", true);
-  let parsedColor;
-  try {
-    parsedColor = color(colorInput);
-  } catch (error) {
-    return interaction.reply("Invalid color format.");
-  }
+  let color = Color.fromHex(colorInput);
+  if (!color) return interaction.reply("Invalid color format.");
+
   const embed = new EmbedBuilder()
-    .setColor(parsedColor.hex())
-    .setTitle(`Information about ${parsedColor.keyword()}`)
+    .setColor(`#${color.hex}`)
     .addFields(
-      { name: "Hex", value: parsedColor.hex(), inline: true },
+      {
+        name: "Hex",
+        value: color.hex,
+        inline: true,
+      },
       {
         name: "RGB",
-        value: `${Math.round(parsedColor.red())}, ${
-          Math.round(parsedColor.green())
-        }, ${Math.round(parsedColor.blue())}`,
-        inline: true,
-      },
-      {
-        name: "HSV",
-        value: `${Math.round(parsedColor.hue())}, ${
-          Math.round(parsedColor.saturationv())
-        }, ${Math.round(parsedColor.value())}`,
-        inline: true,
-      },
-      {
-        name: "HSVL",
-        value: `${Math.round(parsedColor.hue())}, ${
-          Math.round(parsedColor.saturationl())
-        }, ${Math.round(parsedColor.lightness())}`,
+        value: `${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)}`,
         inline: true,
       },
       {
         name: "CMYK",
-        value: `${Math.round(parsedColor.cyan())}, ${
-          Math.round(parsedColor.magenta())
-        }, ${Math.round(parsedColor.yellow())}, ${
-          Math.round(parsedColor.black())
-        }`,
+        value: `${Math.round(color.c * 100)}, ${Math.round(color.m * 100)}, ${Math.round(color.y * 100)}, ${Math.round(color.k * 100)}`,
+        inline: true,
+      },
+      {
+        name: "HSV",
+        value: `${Math.round(color.h)}, ${Math.round(color.sv * 100)}, ${Math.round(color.v * 100)}`,
+        inline: true,
+      },
+      {
+        name: "HSL",
+        value: `${Math.round(color.h)}, ${Math.round(color.sl * 100)}, ${Math.round(color.l * 100)}`,
         inline: true,
       },
     )
-    .setThumbnail(
-      `https://singlecolorimage.com/get/${parsedColor.hex().slice(1)}/400x400`,
-    )
-    .setTimestamp();
+    .setThumbnail(`https://singlecolorimage.com/get/${color.hex}/400x400`);
 
   return interaction.reply({ embeds: [embed] });
 }

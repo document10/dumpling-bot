@@ -11,7 +11,7 @@ export const data = new SlashCommandBuilder()
       .setDescription("Length of the password")
       .setRequired(true)
       .setMinValue(8)
-      .setMaxValue(100),
+      .setMaxValue(100)
   )
   .addNumberOption((option) =>
     option
@@ -22,7 +22,7 @@ export const data = new SlashCommandBuilder()
         { name: "Only numbers and lowercase letters", value: 0 },
         { name: "Alphanumerical characters", value: 1 },
         { name: "Alphanumerical characters and symbols", value: 2 },
-      ),
+      )
   );
 
 export async function execute(interaction: CommandInteraction) {

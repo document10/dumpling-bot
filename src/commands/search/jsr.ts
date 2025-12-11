@@ -10,9 +10,10 @@ export const data = new SlashCommandBuilder()
     "Shows information about a package from the Javascript Registry",
   )
   .addStringOption((option) =>
-    option.setName("name")
+    option
+      .setName("name")
       .setDescription("name of the package")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export const category = "search";
@@ -20,16 +21,15 @@ export async function execute(interaction: CommandInteraction) {
   const name = interaction.options.getString("name");
   await interaction.reply("Fetching package information,please wait...");
   try {
-    const res = await fetch(
-      `https://jsr.io/${name}/meta.json`,
-      { headers: { Accept: "application/json" } },
-    );
+    const res = await fetch(`https://jsr.io/${name}/meta.json`, {
+      headers: { Accept: "application/json" },
+    });
     if (res.ok) {
       const json = await res.json();
       const desc = await fetch(
         `https://jsr.io/${name}/${json?.latest}/README.md`,
         {
-          headers: { "Accept": "text/markdown" },
+          headers: { Accept: "text/markdown" },
         },
       );
       let markdown = desc.ok ? await desc.text() : "No README found.";
@@ -38,13 +38,11 @@ export async function execute(interaction: CommandInteraction) {
         .setURL(`https://jsr.io/${name}`)
         .setDescription(markdown.slice(0, 4096))
         .setColor(process.env.THEME_COLOR || "#a059ff")
-        .addFields(
-          {
-            name: "Versions:",
-            value: `${Object.keys(json?.versions || {}).join(", ")}`,
-            inline: true,
-          },
-        );
+        .addFields({
+          name: "Versions:",
+          value: `${Object.keys(json?.versions || {}).join(", ")}`,
+          inline: true,
+        });
       return interaction.editReply({ content: "", embeds: [embed] });
     } else {
       switch (res.status) {
@@ -56,7 +54,7 @@ export async function execute(interaction: CommandInteraction) {
           );
         default:
           return interaction.editReply(
-            `Failed to fetch package information for ${name}.`,
+            `Server failed to respond. For more information, please check the status code \`${res.status} ${res.statusText}\``,
           );
       }
     }

@@ -7,12 +7,12 @@ import {
 
 import {
   author,
+  author_website,
   homepage,
   keywords,
+  source_host,
   version,
-} from "../../../package.json" with {
-  type: "json",
-};
+} from "../../../package.json" with { type: "json" };
 
 export const data = new SlashCommandBuilder()
   .setName("about")
@@ -30,13 +30,13 @@ export async function execute(interaction: CommandInteraction) {
     .addFields(
       {
         name: "Author",
-        value: `[${author}](https://document10.github.io/)`,
+        value: `[${author}](${author_website})`,
         inline: true,
       },
       { name: "Version", value: version, inline: true },
       {
         name: "Source Code",
-        value: `[GitHub](${homepage})`,
+        value: `[${source_host}](${homepage})`,
         inline: true,
       },
       {

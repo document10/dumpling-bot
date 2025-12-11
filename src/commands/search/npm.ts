@@ -8,9 +8,10 @@ export const data = new SlashCommandBuilder()
   .setName("npm")
   .setDescription("Shows information about a npm package")
   .addStringOption((option) =>
-    option.setName("name")
+    option
+      .setName("name")
       .setDescription("name of the package")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export const category = "search";
@@ -21,17 +22,17 @@ export async function execute(interaction: CommandInteraction) {
     const res = await fetch(
       `https://registry.npmjs.com/${encodeURIComponent(name)}`,
     );
-    if (res.status === 404) {
-      return interaction.editReply(`Package ${name} was not found.`);
-    } else {
+    if (res.ok) {
       const json = await res.json();
       const embed = new EmbedBuilder()
-        .setTitle(`${json.name} (${json["dist-tags"].latest})`)
+        .setTitle(
+          `${json?.name || "Unknown"} (${json["dist-tags"]?.latest || "no version specified"})`,
+        )
         .setURL(`https://www.npmjs.com/package/${encodeURI(json.name)}`)
         .setThumbnail(
           "https://static-production.npmjs.com/7a7ffabbd910fc60161bc04f2cee4160.png",
         )
-        .setDescription(`${json.description}`)
+        .setDescription(json.description || "No description provided")
         .addFields(
           {
             name: "Author",
@@ -39,30 +40,47 @@ export async function execute(interaction: CommandInteraction) {
           },
           {
             name: "Maintainers",
-            value: `${
-              (json.maintainers || [{ name: "No maintainers", email: "blank" }])
-                .map((m) => `${m.name} - \`${m.email}\``).join("\n")
-            }`,
+            value: `${(
+              json?.maintainers || [{ name: "No maintainers", email: "blank" }]
+            )
+              .map((m) => `${m.name} - \`${m.email}\``)
+              .join("\n")
+              .slice(0, 1024)}`,
           },
           {
             name: "Keywords",
             value: `${
-              (json.keywords || ["none"]).map((k) => `\`${k}\``).join(" ") ||
+              (json?.keywords || ["none"]).map((k) => `\`${k}\``).join(" ") ||
               "none"
             }`,
           },
           {
             name: "License",
-            value: `${json.license || "Not specified"}`,
+            value: `${json?.license || "Not specified"}`,
           },
         )
         .setColor(process.env.THEME_COLOR || "#a059ff")
         .setFooter({
-          text: `Last updated at ${json.time.modified}`,
+          text: `Last updated at ${json?.time?.modified || "not specified"}`,
           iconURL: interaction.client.user.displayAvatarURL(),
         })
         .setTimestamp();
       return interaction.editReply({ content: "", embeds: [embed] });
+    } else {
+      switch (res.status) {
+        case 404:
+          return interaction.editReply(`Package \`${name}\` not found`);
+        case 500:
+          return interaction.editReply("Unknown server error");
+        case 503:
+          return interaction.editReply(
+            "Service unavailable. Please try again later.",
+          );
+        default:
+          return interaction.editReply(
+            `Server failed to respond. For more information, please check the status code \`${res.status}\``,
+          );
+      }
     }
   } catch (error) {
     console.log(error);

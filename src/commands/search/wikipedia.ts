@@ -8,21 +8,22 @@ export const data = new SlashCommandBuilder()
   .setName("wikipedia")
   .setDescription("Search Wikipedia for a given query")
   .addStringOption((option) =>
-    option.setName("query")
+    option
+      .setName("query")
       .setDescription("The search query")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export const category = "search";
 
 export async function execute(interaction: CommandInteraction) {
   const query = interaction.options.getString("query");
-  await interaction.reply("Searching Wikipedia, please wait...");
+  await interaction.deferReply();
   try {
     const res = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${
-        encodeURIComponent(query)
-      }`,
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
+        query,
+      )}`,
     );
     if (res.ok) {
       const json = await res.json();
@@ -36,8 +37,7 @@ export async function execute(interaction: CommandInteraction) {
         )
         .setColor(process.env.THEME_COLOR || "#a059ff")
         .setFooter({
-          text:
-            `Revision ${json?.revision}, Last updated at ${json?.timestamp}`,
+          text: `Revision ${json?.revision}, Last updated at ${json?.timestamp}`,
           iconURL: interaction.client.user.displayAvatarURL(),
         });
       return interaction.editReply({ embeds: [embed] });
@@ -49,13 +49,12 @@ export async function execute(interaction: CommandInteraction) {
           });
         case 500:
           return interaction.editReply({
-            content:
-              `Wikipedia is currently unavailable, please try again later.`,
+            content: `Wikipedia is currently unavailable, please try again later.`,
           });
         default:
-          return interaction.editReply({
-            content: `An unexpected error occurred: ${res.statusText}`,
-          });
+          return interaction.editReply(
+            `Server failed to respond. For more information, please check the status code \`${res.status} ${res.statusText}\``,
+          );
       }
     }
   } catch (error) {

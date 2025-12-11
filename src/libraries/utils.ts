@@ -1,3 +1,8 @@
+/**
+ * Parse a time string into milliseconds.
+ * @param str - The time string to parse.
+ * @returns The parsed time in milliseconds or undefined if invalid.
+ */
 export function parseTimeString(str: string): number | undefined {
   const regex = /^([\d]+(?:\.\d+)?)(ms|s|m|h|d)$/i;
   const match = str.match(regex);
@@ -22,6 +27,12 @@ export function parseTimeString(str: string): number | undefined {
   }
 }
 
+/**
+ * Generates a random password based on the specified length and complexity.
+ * @param length - The length of the password.
+ * @param complexity - The complexity of the password. 0-default, only lowercase letters and numbers, 1-lowercase and uppercase letters and numbers, 2-all characters including symbols.
+ * @returns The generated password.
+ */
 export function generatePassword(
   length: number,
   complexity: number = 0,
@@ -55,4 +66,18 @@ export function generatePassword(
       break;
   }
   return password;
+}
+
+export function randomNumber(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function randomString(length: number): string {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let str = "";
+  for (let i = 0; i < length; i++) {
+    str += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return str;
 }

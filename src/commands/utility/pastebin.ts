@@ -5,17 +5,17 @@ export const data = new SlashCommandBuilder()
   .setName("pastebin")
   .setDescription("Create a pastebin link")
   .addStringOption((option) =>
-    option.setName("text").setDescription("Text to upload").setRequired(true)
+    option.setName("text").setDescription("Text to upload").setRequired(true),
   )
   .addStringOption((option) =>
-    option.setName("title").setDescription("Title for the paste")
+    option.setName("title").setDescription("Title for the paste"),
   )
   .addStringOption((option) =>
-    option.setName("format")
-      .setDescription("Format of the paste")
+    option.setName("format").setDescription("Format of the paste"),
   )
   .addStringOption((option) =>
-    option.setName("expire")
+    option
+      .setName("expire")
       .setDescription("The expire date of the paste (never if not specified)")
       .setChoices(
         {
@@ -54,10 +54,11 @@ export const data = new SlashCommandBuilder()
           name: "1 year",
           value: "1Y",
         },
-      )
+      ),
   )
   .addStringOption((option) =>
-    option.setName("publicity")
+    option
+      .setName("publicity")
       .setDescription("Publicity of the paste (public if not specified)")
       .setChoices(
         {
@@ -68,7 +69,7 @@ export const data = new SlashCommandBuilder()
           name: "Unlisted",
           value: "1",
         },
-      )
+      ),
   );
 
 export const category = "utility";
@@ -102,7 +103,7 @@ export async function execute(interaction: CommandInteraction) {
     } else {
       const data = await response.text();
       await interaction.editReply(
-        `There was an error creating your pastebin link:${data}`,
+        `There was an error creating your pastebin link:${data}\nStatus Code: \`${response.status} ${response.statusText}\``,
       );
     }
   } catch (error) {

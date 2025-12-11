@@ -26,6 +26,7 @@ try {
   switch (Bun.argv[2]) {
     case "setup":
       console.log("Setting up database schema...");
+      // NOTE: You may need to adjust the schemas if you're using SQLite.
       await sql`CREATE TABLE IF NOT EXISTS "Secret" (
         "id" SERIAL PRIMARY KEY,
         "name" TEXT NOT NULL UNIQUE,
@@ -51,8 +52,7 @@ try {
         if (value) {
           console.log(`${varName} found in .env`);
         } else {
-          console.error(`Error: ${varName} is not set.`);
-          process.exit(1);
+          console.warn(`Warning: ${varName} is not set in .env`);
         }
       });
       recognisedEnvVars.forEach(async (varName) => {
@@ -83,11 +83,13 @@ try {
     case "export":
       Bun.write(
         "backups/old.env",
-        (await Promise.all(
-          recognisedEnvVars.map(async (varName) =>
-            `${varName}=${await getSecret(varName)}`
-          ),
-        )).join("\n"),
+        (
+          await Promise.all(
+            recognisedEnvVars.map(
+              async (varName) => `${varName}=${await getSecret(varName)}`,
+            ),
+          )
+        ).join("\n"),
       );
       console.log("Exported secrets to backups/old.env");
       const serverInfo = await sql`SELECT * FROM "Server"`;
@@ -121,6 +123,6 @@ try {
       process.exit(1);
   }
 } catch (error) {
-  console.error("Error initializing database:", error);
+  console.error("An error occurred:", error);
   process.exit(1);
 }

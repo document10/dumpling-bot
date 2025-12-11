@@ -39,17 +39,17 @@ It's recommended to use the local deployment during development to avoid rate li
 
 5. Setup the database
 
+Using databases other than `PostgresSQL` requires [v1.2.21](https://bun.com/blog/bun-v1.2.21) or newer.
+
 ```bash
 bun db-setup
 ```
 
-Optionally set `DATABASE_SECRETS` to `YES` so that all sensitive info (like API keys) are stored on the database. Then load them from the `.env` file:
+Optionally set `DATABASE_SECRETS` to `YES` so that all sensitive info (like API keys) are stored and loaded from the database instead of `.env`. Then load them from the `.env` file:
 
 ```bash
 bun db-secrets
 ```
-
-Using databases other than `PostgresSQL` requires [v1.2.21](https://bun.com/blog/bun-v1.2.21) or newer.
 
 6. Start the bot:
 
@@ -62,3 +62,21 @@ or in dev mode for restarting on changes:
 ```bash
 bun dev
 ```
+
+Optionally, you can update the following fields in `package.json` to reflect the current state of the bot (when using the `/about` command):
+```
+author
+author_website
+source_host
+homepage
+keywords
+version
+```
+
+## Other useful commands
+
+- `bun dev`: Start the bot in development mode, automatically restarting on changes.
+- `bun db-export`: Backs up the database contents to a file.
+- `bun db-purge`: Removes all tables related to the bot from the database. (**VERY DANGEROUS**)
+- `bun db-help`: Displays help information for the database commands.
+- `bun format`: Formats the codebase using [Deno](https://deno.com/).

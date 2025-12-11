@@ -2,9 +2,11 @@
   "name": "dumpling-bot",
   "module": "index.ts",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A Discord bot for fun, utility & moderation commands written in Bun.",
   "author": "document10",
+  "author_website": "https://document10.github.io",
+  "source_host": "Github",
   "homepage": "https://github.com/document10/dumpling-bot",
   "keywords": [
     "discord",
@@ -39,9 +41,10 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.84",
     "@sourcebin/linguist": "^0.0.3",
     "@types/qrcode": "^1.5.6",
-    "discord.js": "^14.24.1",
+    "discord.js": "^14.25.1",
     "qrcode": "^1.5.4"
   },
   "scripts": {

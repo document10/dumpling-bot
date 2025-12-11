@@ -8,22 +8,19 @@ import {
 export const data = new SlashCommandBuilder()
   .setName("sourcebin")
   .setDescription("Create a new sourcebin")
-  .addAttachmentOption(
-    (option) =>
-      option
-        .setName("code")
-        .setDescription("The code to upload")
-        .setRequired(true),
+  .addAttachmentOption((option) =>
+    option
+      .setName("code")
+      .setDescription("The code to upload")
+      .setRequired(true),
   )
   .addStringOption((option) =>
-    option
-      .setName("title")
-      .setDescription("The title of the sourcebin")
+    option.setName("title").setDescription("The title of the sourcebin"),
   )
   .addStringOption((option) =>
     option
       .setName("description")
-      .setDescription("The description of the sourcebin")
+      .setDescription("The description of the sourcebin"),
   );
 
 export const category = "utility";
@@ -31,12 +28,12 @@ export const category = "utility";
 export async function execute(interaction: CommandInteraction) {
   const code: Attachment = interaction.options.getAttachment("code");
   const title = interaction.options.getString("title") || "Untitled";
-  const description = interaction.options.getString("description") ||
-    "No description";
+  const description =
+    interaction.options.getString("description") || "No description";
   const linguist = require("@sourcebin/linguist");
   const extension = code.name.split(".").pop()?.toLowerCase() || "txt";
-  const langCode = Object.keys(linguist.linguist).find((v) =>
-    linguist.linguist[v].extension == extension
+  const langCode = Object.keys(linguist.linguist).find(
+    (v) => linguist.linguist[v].extension == extension,
   );
   if (!langCode) {
     return interaction.reply(`Unsupported file type: \`.${extension}\``);
@@ -50,11 +47,13 @@ export async function execute(interaction: CommandInteraction) {
     const data = {
       title: title,
       description: description,
-      files: [{
-        languageId: langCode,
-        name: code.name,
-        content: await content.text(),
-      }],
+      files: [
+        {
+          languageId: langCode,
+          name: code.name,
+          content: await content.text(),
+        },
+      ],
     };
     const response = await fetch("https://sourceb.in/api/bins", {
       method: "POST",
@@ -64,8 +63,10 @@ export async function execute(interaction: CommandInteraction) {
       },
     });
     if (!response.ok) {
-      console.error("Failed to create sourcebin:\n", response.statusText);
-      return interaction.editReply("Failed to create sourcebin.");
+      const data = await response.text();
+      await interaction.editReply(
+        `There was an error creating your sourcebin link:${data}\nStatus Code: \`${response.status} ${response.statusText}\``,
+      );
     }
     const json = await response.json();
     return interaction.editReply(
